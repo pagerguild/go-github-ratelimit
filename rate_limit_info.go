@@ -1,4 +1,4 @@
-package ratelimit
+package ghratelimit
 
 import (
 	"net/http"
