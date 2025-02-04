@@ -21,7 +21,7 @@ import (
 type RateLimitTransport[T http.RoundTripper] struct {
 	semaphore     semaphore
 	headerLimiter *githubHeaderRateLimiter
-	transport     T
+	BaseTransport T
 }
 
 // RoundTrip implements http.RoundTripper.
@@ -30,7 +30,7 @@ func (r *RateLimitTransport[T]) RoundTrip(req *http.Request) (resp *http.Respons
 		return
 	}
 	defer r.Release(resp)
-	resp, err = r.transport.RoundTrip(req)
+	resp, err = r.BaseTransport.RoundTrip(req)
 	return
 }
 
@@ -45,7 +45,7 @@ func newRateLimiter[T http.RoundTripper](rt T, maxConcurrent int64) *RateLimitTr
 	return &RateLimitTransport[T]{
 		semaphore:     newSemaphore(int(maxConcurrent)),
 		headerLimiter: newGitHubHeaderRateLimiter(maxConcurrent),
-		transport:     rt,
+		BaseTransport: rt,
 	}
 }
 
